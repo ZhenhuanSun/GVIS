@@ -4,6 +4,10 @@ future==0.18.2
 glfw==2.0.0
 graphics @ http://bit.ly/csc161graphics
 macholib @ file:///home/linux1/recipes/ci/macholib_1611055836792/work
+mkl-fft==1.2.1
+mkl-random==1.1.1
+mkl-service==2.3.0
+mouse==0.7.1
 multipledispatch==0.6.0
 numpy==1.19.5
 panda3d==1.10.8
@@ -13,6 +17,7 @@ pycryptodome @ file:///C:/ci/pycryptodome_1606344774283/work
 pygame==2.0.1
 PyInstaller==3.6
 pyinstaller-hooks-contrib==2020.11
+pynput==1.7.3
 PyOpenGL==3.1.5
 pyperclip==1.8.1
 pyrr==0.10.3
@@ -20,6 +25,7 @@ pywin32==227
 pywin32-ctypes==0.2.0
 rope==0.18.0
 screeninfo==0.6.7
-six==1.15.0
+six @ file:///C:/ci/six_1605187374963/work
 ursina==3.3.1
 wincertstore==0.2
+wxPython==4.1.1
