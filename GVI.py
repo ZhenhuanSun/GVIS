@@ -1,3 +1,11 @@
+"""
+    McMaster University
+    Computer Engineering Capstone Project
+    Gesture-based Virtual Interaction System (GVIS)
+    Arthor: Zhenhuan Sun
+"""
+
+
 import wx 
 import cv2
 import glfw
@@ -9,7 +17,8 @@ from PIL import Image
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram
 from OpenGL.GL.shaders import compileShader
-from pynput.mouse import Button, Controller
+from pynput.keyboard import Key, Controller as KeyboardController
+from pynput.mouse import Button, Controller as MouseController
 
 # window width and height for 3D simulation
 WIDTH, HEIGHT = 1280, 720
@@ -152,7 +161,7 @@ class Camera:
         self.camera_front = pyrr.Vector3([0.0, 0.0, -1.0]) # the direction of where camera looks
         self.camera_up = pyrr.Vector3([0.0, 1.0, 0.0])
         self.camera_right = pyrr.Vector3([1.0, 0.0, 0.0])
-        self.mouse_sensitivity = 0.05   # mouse sensitivity
+        self.mouse_sensitivity = 0.1   # mouse sensitivity
         self.camera_yaw = -90  # camera yaw left and right
         self.camera_pitch = 0  # camera pitch up and down
 
@@ -224,12 +233,13 @@ left, right, forward, backward = False, False, False, False
 
 # this function will be called everytime we move the mouse inside the glfw window
 def mouse_look_callback(window, x_pos, y_pos):
-    global last_x, last_y
+    global mouse_first_enter, last_x, last_y
 
     # if mouse just entered the window, the mouse position will be reset to mouse's x and y position in glfw window
     if mouse_first_enter:
         last_x = x_pos
         last_y = y_pos
+        mouse_first_enter = False
 
     x_offset = x_pos - last_x
     y_offset = last_y - y_pos # mouse y-axis start from top to bottom and OpenGL y-axis starts from bottom to top
@@ -237,7 +247,7 @@ def mouse_look_callback(window, x_pos, y_pos):
     last_x = x_pos
     last_y = y_pos
 
-    camera.process_mouse_movement(x_offset, y_offset)
+    camera.process_mouse_movement(x_offset, y_offset, False)
 
 # this function will be called everytime the mouse is entered the window or leave the window
 def mouse_enter_callback(window, entered):
@@ -278,13 +288,13 @@ def keyboard_input_callback(window, key, scancode, action, mode):
 # enable continuous movement while key is pressed
 def do_movement():
     if left:
-        camera.process_keyboard("LEFT", 0.05)
+        camera.process_keyboard("LEFT", 0.5)
     if right:
-        camera.process_keyboard("RIGHT", 0.05)
+        camera.process_keyboard("RIGHT", 0.5)
     if forward:
-        camera.process_keyboard("FORWARD", 0.05)
+        camera.process_keyboard("FORWARD", 0.8)
     if backward:
-        camera.process_keyboard("BACKWARD", 0.05)
+        camera.process_keyboard("BACKWARD", 0.8)
 
 # this function will be called everytime when we resize the window
 def resize_window(window, width, height):
@@ -303,12 +313,15 @@ def resize_window(window, width, height):
 #=================================================================================================
 #=================================================================================================
 
-# simulate mouse event
-mouse = Controller()
+# simulate mouse event and keyboard event
+keyboard = KeyboardController()
+GOForward = False
+
+mouse = MouseController()
 app = wx.App(False)
 # screen resolution
 screen_x, screen_y = wx.GetDisplaySize()
-window_x, window_y = 300, 300
+window_x, window_y = 500, 500
 
 # use cvtColor() method to convert rgb value to a range of hsv value
 # as there are lots of variation of one particular color
@@ -320,7 +333,7 @@ lowerLimit = hsvGreen[0][0][0] - 10, 100, 100
 upperLimit = hsvGreen[0][0][0] + 10, 255, 255
 #lowerLimit = np.array(lowerLimit)
 #upperLimit = np.array(upperLimit)
-lowerLimit = np.array([30,50,100])
+lowerLimit = np.array([30,50,120])
 upperLimit = np.array([100,255,255])
 
 # initialize camera object
@@ -374,6 +387,9 @@ glfw.set_cursor_enter_callback(window, mouse_enter_callback)
 
 # keyboard press callback function
 glfw.set_key_callback(window, keyboard_input_callback)
+
+# make mouse cursor invisible when it is inside the window client area
+glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_HIDDEN)
 
 # before start drawing we need to initialize OpenGL and this is done by creating an OpenGL context
 glfw.make_context_current(window)
@@ -644,8 +660,24 @@ while not glfw.window_should_close(window):
         #     x,y,w,h = cv2.boundingRect(conts[i])
         #     cv2.rectangle(img, (x,y), (x+w, y+h), (0,0,255), 2)
 
+        # handle keyboard event
+        # distance between two contours
+        distance = abs(cx2 - cx1)
+
+        # moving forward if distance between two hands is larger than 150
+        if distance > 200:
+            forward = True
+        else:
+            forward = False
+
+        # moving backward if distance between two hands is larger than 50 and smaller than 120
+        if distance >= 0 and distance < 150:
+            backward = True
+        else:
+            backward = False
+
         # draw line between two fingers
-        cv2.line(img, (cx1, cy1), (cx2, cy2), (255, 0, 0), 2)
+        cv2.line(img, (cx1, cy1), (cx2, cy2), (0, 0, 255), 2)
         # draw circle to the mid point
         cv2.circle(img, (cx, cy), 2, (0, 0, 255), 2)
 
@@ -658,6 +690,10 @@ while not glfw.window_should_close(window):
     
     # if there is only one contour captured
     elif len(conts) == 1:
+        # reset keyboard states when there is only one hand detected
+        #forward = False
+        #backward = False
+
         if clicked == False:
             clicked = True
             mouse.press(Button.left)
@@ -671,9 +707,13 @@ while not glfw.window_should_close(window):
 
         # draw rectangle
         cv2.rectangle(img, (x,y), (x+w, y+h), (0, 0, 255), 2)
+
+        # draw circle at center point
         cx = int(x + w/2)
         cy = int(y + h/2)
         cv2.circle(img, (cx, cy), int((w+h)/4), (0, 255, 255), 2)
+        # For illustration purpose only
+        #cv2.circle(img, (cx, cy), 8, (0, 0, 255), -1)
 
         # match the capture window resolution to screen resolution
         mouseLoc = (int(screen_x-(cx*screen_x/window_x)), int(cy*screen_y/window_y))
