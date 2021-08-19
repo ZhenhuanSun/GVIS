@@ -1,9 +1,4 @@
-我用pip装的package都在requirements.txt里
-    pip install -r requirements.txt
-应该就能都装上
+Winner of outstanding achievement award in McMaster ECE capstone project competition 2021
+https://www.eng.mcmaster.ca/ece/ece-expo#Prize-Winners
 
-opencv 我用的conda装的
-    conda install opencv
-
-pip 装的opencv版本高一些， 应该也能用， 你可以试试
-    pip install opencv-python
+Gesture-based Virtual Interaction System (GVIS) is a human-computer interaction interface that extends the existing interaction methods. It provides a natural and touchless operating experience. The system is extensible, allowing users to customize functions based on their requirements. GVIS also comes with several sample programs that will introduce the concept to guide new users.
