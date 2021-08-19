@@ -6,7 +6,7 @@ Gesture-based Virtual Interaction System (GVIS) is a human-computer interaction 
 Video link:
 1. Gesture-based Virtual Interaction System (GVIS): https://youtu.be/glr9-I-4sig
 2. Virtual Mouse 1 & 2: https://youtu.be/OwonhDcQMu4 & https://youtu.be/1OM0ftD4dXQ
-3. D Dynamic Simulation: https://youtu.be/ZXIiWrfIny4
+3. 3D Dynamic Simulation: https://youtu.be/ZXIiWrfIny4
 4. 3D rendering program: https://youtu.be/AEgvh9D3ht4
 5. Color detection based GVI system: https://youtu.be/QAdAnG1KZxQ
 6. Color detection & Object detection based GVI system: https://youtu.be/Qsd7VVSaszU
